@@ -1,0 +1,198 @@
+@import "tailwindcss";
+
+:root {
+  --font-cairo: "Cairo", sans-serif;
+  --bg-primary: #000000;
+  --bg-secondary: #171411;
+  --bg-tertiary: #1f1b17;
+  --text-primary: #f4f1eb;
+  --text-secondary: #d9d2c5;
+  --text-muted: #6b6258;
+  --accent-rust: #8c3d1a;
+  --accent-rust-hover: #a04820;
+  --accent-rust-glow: rgba(140, 61, 26, 0.15);
+  --border-subtle: hsla(39, 21%, 81%, 0.08);
+  --border-default: hsla(39, 21%, 81%, 0.15);
+  --border-strong: hsla(39, 21%, 81%, 0.25);
+  --bg: #000000;
+  --bg2: #171411;
+  --bg3: #1f1b17;
+  --accent: #8c3d1a;
+  --gold: #c9a84c;
+  --muted: #6b6258;
+  --text: #f4f1eb;
+  --background: #000000;
+  --foreground: #f4f1eb;
+  --border: hsla(39, 21%, 81%, 0.15);
+  --ring: #8c3d1a;
+  --radius: 0.5rem;
+  --card: #171411;
+  --card-foreground: #f4f1eb;
+  --primary: #8c3d1a;
+  --primary-foreground: #f4f1eb;
+  --secondary: #1f1b17;
+  --secondary-foreground: #f4f1eb;
+  --muted-foreground: #6b6258;
+  --input: hsla(39, 21%, 81%, 0.15);
+  --border-color: hsla(39, 21%, 81%, 0.08);
+  --card-bg: #171411;
+  --card-border: hsla(39, 21%, 81%, 0.15);
+  --text-rgb: 244, 241, 235;
+}
+
+* {
+  box-sizing: border-box;
+  cursor: none;
+}
+
+button,
+input,
+select,
+textarea {
+  pointer-events: auto !important;
+}
+
+input,
+textarea {
+  cursor: text !important;
+}
+
+button,
+select,
+a {
+  cursor: pointer !important;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body,
+html {
+  overflow-x: clip;
+  margin: 0;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-inter), var(--font-cairo), sans-serif;
+}
+
+html[lang="ar"] {
+  --font-inter: var(--font-cairo), sans-serif;
+  --font-orbitron: var(--font-cairo), sans-serif;
+  --font-space-mono: var(--font-cairo), monospace;
+}
+
+.font-orbitron {
+  font-family: var(--font-orbitron), var(--font-cairo), sans-serif;
+}
+
+.font-space-mono {
+  font-family: var(--font-space-mono), var(--font-cairo), monospace;
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(140, 61, 26, 0.5);
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(140, 61, 26, 0.8);
+}
+
+::selection {
+  background: var(--accent-rust-glow);
+  color: var(--text-primary);
+}
+
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+.pulse-dot {
+  animation: pulse-dot 1.5s ease-in-out infinite;
+}
+
+@keyframes marquee-tech {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee-tech {
+  animation: marquee-tech 35s linear infinite;
+}
+
+@keyframes marquee-h {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (hover: none), (pointer: coarse) {
+  *,
+  a,
+  button,
+  input,
+  select,
+  textarea {
+    cursor: auto !important;
+  }
+  .cursor-dot,
+  .cursor-ring {
+    display: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+}
+
+@media (max-width: 768px) {
+  body {
+    overflow-x: hidden;
+  }
+  section {
+    overflow-x: hidden;
+    max-width: 100vw;
+    padding-left: 1.25rem !important;
+    padding-right: 1.25rem !important;
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  p {
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
