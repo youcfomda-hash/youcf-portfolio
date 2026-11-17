@@ -123,8 +123,34 @@ export default function ContactSection() {
       form.budget ||
       "Not specified";
 
+    const web3Payload = {
+      access_key: "8074be6b-4337-4f0c-b85d-48072763b4d7",
+      subject: `🚀 New Portfolio Client Inquiry — ${form.name} (${selectedPkg})`,
+      from_name: "Youcf Vision Portfolio",
+      replyto: form.email,
+      "Client Name": form.name,
+      "Client Email": form.email,
+      "Selected Package / Budget": selectedPkg,
+      "Project & Automation Details": form.message,
+      "Submitted At (Algiers Time)": new Date().toLocaleString("en-GB", {
+        timeZone: "Africa/Algiers",
+      }),
+    };
+
     try {
-      const res = await fetch("/api/contact", {
+      const res = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify(web3Payload),
+      });
+
+      const data = await res.json().catch(() => ({ success: false }));
+
+      // Also notify /api/contact in background
+      fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -133,10 +159,9 @@ export default function ContactSection() {
           budget: selectedPkg,
           message: form.message,
         }),
-      });
+      }).catch(() => {});
 
-      const data = await res.json().catch(() => ({ ok: false }));
-      if (!res.ok || !data.ok) {
+      if (!res.ok || !data.success) {
         throw new Error("Failed to send");
       }
 
