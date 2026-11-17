@@ -123,36 +123,8 @@ export default function ContactSection() {
       form.budget ||
       "Not specified";
 
-    const payload = {
-      _subject: `🚀 New Portfolio Lead: ${form.name} (${selectedPkg})`,
-      _replyto: form.email,
-      _template: "table",
-      _captcha: "false",
-      "1. Client Name (الاسم الكامل)": form.name,
-      "2. Client Email (البريد الإلكتروني)": form.email,
-      "3. Package / Budget (الباقة المختارة)": selectedPkg,
-      "4. Project & Automation Details (تفاصيل المشروع)": form.message,
-      "5. Source (المصدر)": "Youcf Vision Portfolio (youcf-portfolio.vercel.app)",
-      "6. Submitted At (التوقيت)": new Date().toLocaleString("en-GB", {
-        timeZone: "Africa/Algiers",
-      }),
-    };
-
     try {
-      const res = await fetch(
-        `https://formsubmit.co/ajax/${encodeURIComponent(brand.email)}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify(payload),
-        }
-      );
-
-      // Also notify server route in background
-      fetch("/api/contact", {
+      const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -161,10 +133,11 @@ export default function ContactSection() {
           budget: selectedPkg,
           message: form.message,
         }),
-      }).catch(() => {});
+      });
 
-      if (!res.ok) {
-        throw new Error("Failed to send email");
+      const data = await res.json().catch(() => ({ ok: false }));
+      if (!res.ok || !data.ok) {
+        throw new Error("Failed to send");
       }
 
       setSubmitted(true);
