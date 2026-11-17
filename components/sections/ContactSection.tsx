@@ -78,6 +78,8 @@ export default function ContactSection() {
     message: "",
   });
   const [submitted, setSubmitted] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const { content: siteContent, isAr } = useLanguage();
   const { contact, brand } = siteContent;
 
@@ -110,9 +112,71 @@ export default function ContactSection() {
     zIndex: 20,
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
+    if (sending) return;
+    setSending(true);
+    setErrorMsg(null);
+
+    const selectedPkg =
+      contact.budgets.find((b) => b.value === form.budget)?.label ||
+      form.budget ||
+      "Not specified";
+
+    const payload = {
+      _subject: `🚀 New Portfolio Lead: ${form.name} (${selectedPkg})`,
+      _replyto: form.email,
+      _template: "table",
+      _captcha: "false",
+      "1. Client Name (الاسم الكامل)": form.name,
+      "2. Client Email (البريد الإلكتروني)": form.email,
+      "3. Package / Budget (الباقة المختارة)": selectedPkg,
+      "4. Project & Automation Details (تفاصيل المشروع)": form.message,
+      "5. Source (المصدر)": "Youcf Vision Portfolio (youcf-portfolio.vercel.app)",
+      "6. Submitted At (التوقيت)": new Date().toLocaleString("en-GB", {
+        timeZone: "Africa/Algiers",
+      }),
+    };
+
+    try {
+      const res = await fetch(
+        `https://formsubmit.co/ajax/${encodeURIComponent(brand.email)}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      // Also notify server route in background
+      fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
+          budget: selectedPkg,
+          message: form.message,
+        }),
+      }).catch(() => {});
+
+      if (!res.ok) {
+        throw new Error("Failed to send email");
+      }
+
+      setSubmitted(true);
+    } catch {
+      setErrorMsg(
+        isAr
+          ? "حدث خطأ أثناء الإرسال التلقائي، يرجى المحاولة مرة أخرى أو الإرسال عبر واتساب."
+          : "Could not send automatically. Please try again or reach out via WhatsApp."
+      );
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -322,15 +386,28 @@ export default function ContactSection() {
                     color: "var(--text-primary)",
                   }}
                 >
-                  Message Received
+                  {isAr
+                    ? "تم إرسال طلبك إلى الإيميل بنجاح!"
+                    : "Message Sent to Email!"}
                 </h3>
                 <p
                   className="text-sm mb-6"
                   style={{ color: "var(--text-muted)" }}
                 >
-                  Thank you, {form.name || "partner"}! I&apos;ll be in touch
-                  within 24 hours with a custom automation plan for your
-                  business.
+                  {isAr ? (
+                    <>
+                      شكراً لك <strong>{form.name || "عزيزي العميل"}</strong>! تم
+                      إرسال تفاصيل مشروعك بشكل منظم إلى بريدي الإلكتروني (
+                      <code>{brand.email}</code>) وسأتواصل معك خلال 24 ساعة.
+                    </>
+                  ) : (
+                    <>
+                      Thank you, <strong>{form.name || "partner"}</strong>! Your
+                      project details have been sent directly to my email (
+                      <code>{brand.email}</code>). I&apos;ll be in touch within
+                      24 hours.
+                    </>
+                  )}
                 </p>
                 <a
                   href={`${brand.whatsappUrl}?text=${encodeURIComponent(
@@ -345,7 +422,9 @@ export default function ContactSection() {
                     color: "var(--text-primary)",
                   }}
                 >
-                  Send Instantly via WhatsApp →
+                  {isAr
+                    ? "أو تواصل معي فوراً عبر واتساب ←"
+                    : "Or Chat Instantly on WhatsApp →"}
                 </a>
               </div>
             ) : (
@@ -478,10 +557,15 @@ export default function ContactSection() {
                     />
                   </div>
 
+                  {errorMsg && (
+                    <p className="text-xs text-red-400">{errorMsg}</p>
+                  )}
+
                   <MagneticWrap>
                     <button
                       type="submit"
-                      className="w-full py-4 font-bold rounded-xl transition-colors text-sm flex items-center justify-center gap-2"
+                      disabled={sending}
+                      className="w-full py-4 font-bold rounded-xl transition-colors text-sm flex items-center justify-center gap-2 disabled:opacity-60"
                       style={{
                         fontFamily: "var(--font-space-mono)",
                         background: "var(--accent-rust)",
@@ -495,7 +579,13 @@ export default function ContactSection() {
                         e.currentTarget.style.background = "var(--accent-rust)";
                       }}
                     >
-                      {isAr ? "إرسال الرسالة" : "Send Message"}
+                      {sending
+                        ? isAr
+                          ? "جارٍ الإرسال إلى الإيميل..."
+                          : "Sending to Email..."
+                        : isAr
+                        ? "إرسال الرسالة"
+                        : "Send Message"}
                       <motion.span
                         animate={{ x: [0, 4, 0] }}
                         transition={{ repeat: Infinity, duration: 1.5 }}
