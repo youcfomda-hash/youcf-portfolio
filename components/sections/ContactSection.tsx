@@ -123,17 +123,25 @@ export default function ContactSection() {
       form.budget ||
       "Not specified";
 
+    const cleanEmail = form.email.trim();
+    const safeSenderEmail =
+      cleanEmail.toLowerCase() === "youcfomda@gmail.com"
+        ? "lead-notification@youcfvision.com"
+        : cleanEmail;
+
     const web3Payload = {
       access_key: "8074be6b-4337-4f0c-b85d-48072763b4d7",
-      subject: `New Portfolio Client Inquiry - ${form.name} (${selectedPkg})`,
+      subject: `New Client Project Inquiry from ${form.name} - ${selectedPkg}`,
       from_name: "Youcf Vision Portfolio",
       name: form.name,
-      email: form.email,
-      package: selectedPkg,
-      message: `Client Name: ${form.name}\nClient Email: ${form.email}\nSelected Package: ${selectedPkg}\nSubmitted At: ${new Date().toLocaleString(
+      email: safeSenderEmail,
+      Client_Name: form.name,
+      Client_Email: cleanEmail,
+      Selected_Package: selectedPkg,
+      message: `New project inquiry submitted on Youcf Vision Portfolio (https://youcf-portfolio.vercel.app):\n\n• Client Name: ${form.name}\n• Client Email: ${cleanEmail}\n• Selected Package / Budget: ${selectedPkg}\n• Submitted At: ${new Date().toLocaleString(
         "en-GB",
         { timeZone: "Africa/Algiers" }
-      )}\n\nProject Details:\n${form.message}`,
+      )}\n\n• Project & Automation Requirements:\n${form.message}`,
     };
 
     try {
